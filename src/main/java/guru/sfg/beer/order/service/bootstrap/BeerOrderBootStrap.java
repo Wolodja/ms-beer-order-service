@@ -8,9 +8,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.UUID;
 
-/**
- * Created by jt on 2019-06-06.
- */
 @RequiredArgsConstructor
 @Component
 public class BeerOrderBootStrap implements CommandLineRunner {
