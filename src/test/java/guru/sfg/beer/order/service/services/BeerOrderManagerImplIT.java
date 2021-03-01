@@ -145,6 +145,8 @@ public class BeerOrderManagerImplIT {
         BeerOrder beerOrder = createBeerOrder();
         beerOrder.setCustomerRef("fail-validation");
 
+        beerOrderManager.newBeerOrder(beerOrder);
+
         await().untilAsserted(() -> {
             BeerOrder foundOrder = beerOrderRepository.findById(beerOrder.getId()).get();
 
