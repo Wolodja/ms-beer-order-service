@@ -27,9 +27,17 @@ public class BeerOrderAllocationListener {
         if ("fail-allocation".equals(request.getBeerOrderDto().getCustomerRef())) {
             allocationError = true;
         }
+        if ("partial-allocation".equals(request.getBeerOrderDto().getCustomerRef())) {
+            pendingInventory = true;
+        }
 
+        boolean finalPendingInventory = pendingInventory;
         request.getBeerOrderDto().getBeerOrderLines().forEach(beerOrderLineDto -> {
-            beerOrderLineDto.setQuantityAllocated(beerOrderLineDto.getOrderQuantity());
+            if (finalPendingInventory) {
+                beerOrderLineDto.setQuantityAllocated(beerOrderLineDto.getOrderQuantity() - 1);
+            } else {
+                beerOrderLineDto.setQuantityAllocated(beerOrderLineDto.getOrderQuantity());
+            }
         });
 
         System.out.println("############ I RAN Allocation ###########");
