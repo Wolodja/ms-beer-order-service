@@ -32,6 +32,7 @@ public class BeerOrderStateMachineConfig extends StateMachineConfigurerAdapter<B
             .states(EnumSet.allOf(BeerOrderStatusEnum.class))
             .end(BeerOrderStatusEnum.PICKED_UP)
             .end(BeerOrderStatusEnum.DELIVERED)
+            .end(BeerOrderStatusEnum.CANCELED)
             .end(BeerOrderStatusEnum.DELIVERY_EXCEPTION)
             .end(BeerOrderStatusEnum.VALIDATION_EXCEPTION)
             .end(BeerOrderStatusEnum.ALLOCATION_EXCEPTION);
@@ -44,16 +45,24 @@ public class BeerOrderStateMachineConfig extends StateMachineConfigurerAdapter<B
             .and().withExternal()
             .source(BeerOrderStatusEnum.VALIDATION_PENDING).target(BeerOrderStatusEnum.VALIDATED).event(BeerOrderEventEnum.VALIDATION_PASSED)
             .and().withExternal()
+            .source(BeerOrderStatusEnum.VALIDATION_PENDING).target(BeerOrderStatusEnum.CANCELED).event(BeerOrderEventEnum.CANCEL_ORDER)
+            .and().withExternal()
             .source(BeerOrderStatusEnum.VALIDATION_PENDING).target(BeerOrderStatusEnum.VALIDATION_EXCEPTION).event(BeerOrderEventEnum.VALIDATION_FAILED).action(validationFailureAction)
             .and().withExternal()
             .source(BeerOrderStatusEnum.VALIDATED).target(BeerOrderStatusEnum.ALLOCATION_PENDING).event(BeerOrderEventEnum.ALLOCATE_ORDER).action(allocateOrderAction)
             .and().withExternal()
+            .source(BeerOrderStatusEnum.VALIDATED).target(BeerOrderStatusEnum.CANCELED).event(BeerOrderEventEnum.CANCEL_ORDER)
+            .and().withExternal()
             .source(BeerOrderStatusEnum.ALLOCATION_PENDING).target(BeerOrderStatusEnum.ALLOCATED).event(BeerOrderEventEnum.ALLOCATION_SUCCESS)
+            .and().withExternal()
+            .source(BeerOrderStatusEnum.ALLOCATION_PENDING).target(BeerOrderStatusEnum.CANCELED).event(BeerOrderEventEnum.CANCEL_ORDER)
             .and().withExternal()
             .source(BeerOrderStatusEnum.ALLOCATION_PENDING).target(BeerOrderStatusEnum.ALLOCATION_EXCEPTION).event(BeerOrderEventEnum.ALLOCATION_FAILED).action(allocationFailureAction)
             .and().withExternal()
             .source(BeerOrderStatusEnum.ALLOCATION_PENDING).target(BeerOrderStatusEnum.PENDING_INVENTORY).event(BeerOrderEventEnum.ALLOCATION_NO_INVENTORY)
             .and().withExternal()
-            .source(BeerOrderStatusEnum.ALLOCATED).target(BeerOrderStatusEnum.PICKED_UP).event(BeerOrderEventEnum.BEERORDER_PICKED_UP);
+            .source(BeerOrderStatusEnum.ALLOCATED).target(BeerOrderStatusEnum.PICKED_UP).event(BeerOrderEventEnum.BEERORDER_PICKED_UP)
+            .and().withExternal()
+            .source(BeerOrderStatusEnum.ALLOCATED).target(BeerOrderStatusEnum.CANCELED).event(BeerOrderEventEnum.CANCEL_ORDER);
     }
 }
