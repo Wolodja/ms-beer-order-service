@@ -23,12 +23,16 @@ public class BeerOrderAllocationListener {
         AllocateOrderRequest request = (AllocateOrderRequest) msg.getPayload();
         boolean pendingInventory = false;
         boolean allocationError = false;
+        boolean sendResponse = true;
 
         if ("fail-allocation".equals(request.getBeerOrderDto().getCustomerRef())) {
             allocationError = true;
         }
         if ("partial-allocation".equals(request.getBeerOrderDto().getCustomerRef())) {
             pendingInventory = true;
+        }
+        if ("dont-allocate".equals(request.getBeerOrderDto().getCustomerRef())) {
+            sendResponse = false;
         }
 
         boolean finalPendingInventory = pendingInventory;
@@ -42,11 +46,13 @@ public class BeerOrderAllocationListener {
 
         System.out.println("############ I RAN Allocation ###########");
 
-        jmsTemplate.convertAndSend(JmsConfig.ALLOCATE_ORDER_RESPONSE_QUEUE,
-            AllocateOrderResult.builder()
-                .beerOrderDto(request.getBeerOrderDto())
-                .allocationError(allocationError)
-                .pendingInventory(pendingInventory)
-                .build());
+        if (sendResponse) {
+            jmsTemplate.convertAndSend(JmsConfig.ALLOCATE_ORDER_RESPONSE_QUEUE,
+                AllocateOrderResult.builder()
+                    .beerOrderDto(request.getBeerOrderDto())
+                    .allocationError(allocationError)
+                    .pendingInventory(pendingInventory)
+                    .build());
+        }
     }
 }
